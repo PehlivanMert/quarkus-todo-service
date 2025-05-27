@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   todo-postgres:
     image: postgres:latest
@@ -37,6 +35,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - MAVEN_OPTS=-DskipTests
     container_name: todo-app
     environment:
       POSTGRES_HOST: todo-postgres
@@ -51,6 +51,7 @@ services:
         condition: service_healthy
     networks:
       - todo-network
+    restart: unless-stopped
 
 networks:
   todo-network:

@@ -1,221 +1,207 @@
 # Quarkus Todo Service
 
-Bu proje, Quarkus ile geliştirilmiş bir Todo servisidir.
+Bu proje, Quarkus framework'ü kullanılarak geliştirilmiş bir Todo uygulamasıdır. PostgreSQL veritabanı kullanır ve Docker ile containerize edilmiştir.
 
-## Docker ile Çalıştırma
+## Teknolojiler
 
-Tüm uygulamayı (PostgreSQL, pgAdmin ve Quarkus) tek komutla başlatmak için:
-
-```bash
-docker-compose up -d
-```
-
-Bu komut:
-- PostgreSQL 16 veritabanını başlatır (port: 5432)
-- pgAdmin 4'ü başlatır (port: 5050)
-- Quarkus uygulamasını başlatır (port: 8080)
-
-## API Endpointlerini Test Etmek için cURL Komutları
-
-### 1. Tüm Todo'ları Listele
-```bash
-curl -X GET http://localhost:8080/api/todos | jq
-```
-
-### 2. ID'ye Göre Todo Getir
-```bash
-curl -X GET http://localhost:8080/api/todos/1 | jq
-```
-
-### 3. Yeni Todo Oluştur
-```bash
-curl -X POST \
-  -H "Content-Type: application/json" \
-  -d '{"title":"Test Todo","description":"Test Description"}' \
-  http://localhost:8080/api/todos | jq
-```
-
-### 4. Todo Güncelle
-```bash
-curl -X PUT \
-  -H "Content-Type: application/json" \
-  -d '{"title":"Updated Todo","description":"Updated Description"}' \
-  http://localhost:8080/api/todos/1 | jq
-```
-
-### 5. Todo'yu Tamamlandı Olarak İşaretle
-```bash
-curl -X PATCH \
-  -H "Content-Type: application/json" \
-  -d '{"completed":true}' \
-  http://localhost:8080/api/todos/1/complete | jq
-```
-
-### 6. Todo Sil
-```bash
-curl -X DELETE http://localhost:8080/api/todos/1 | jq
-```
-
-## Swagger UI
-
-API dokümantasyonuna ve test arayüzüne erişmek için:
-
-- [http://localhost:8080/q/swagger-ui](http://localhost:8080/q/swagger-ui)
-
-## GitHub Repository
-
-Proje kaynak kodu: [https://github.com/PehlivanMert/quarkus-todo-service](https://github.com/PehlivanMert/quarkus-todo-service)
-
-## 🚀 Özellikler
-
-- RESTful API (CRUD operasyonları)
-- PostgreSQL veritabanı entegrasyonu
-- OpenAPI (Swagger) dokümantasyonu
-- Sağlık kontrolleri
-- Docker ve Kubernetes desteği
-- Kapsamlı test kapsamı
-- Modern Java 17 özellikleri
-
-## 🛠 Teknoloji Yığını
-
+- Quarkus 3.8.1
 - Java 17
-- Quarkus 3.7.1
-- PostgreSQL 16
+- PostgreSQL
 - Docker & Docker Compose
-- Maven
-- JUnit 5
-- REST Assured
-- OpenAPI/Swagger
+- PgAdmin 4
 
-## 📋 Gereksinimler
+## Quarkus vs Spring Boot
 
-- JDK 17
-- Maven 3.8+
-- Docker ve Docker Compose
-- PostgreSQL 16 (Docker ile sağlanıyor)
+### Quarkus'un Avantajları
 
-## 🚀 Başlangıç
+1. **Hızlı Başlangıç Süresi**
+   - Quarkus, native-image desteği ile saniyeler içinde başlar
+   - Spring Boot'a göre çok daha hızlı başlangıç süresi
+   - Düşük bellek kullanımı
 
-### 1. Projeyi Klonlama
+2. **Container-First Yaklaşım**
+   - Docker ve Kubernetes için optimize edilmiş
+   - Daha küçük container imajları
+   - Daha az kaynak tüketimi
+
+3. **Hot Reload**
+   - Geliştirme sırasında anında değişiklik görüntüleme
+   - Spring Boot'a göre daha hızlı hot reload
+   - Daha az yeniden başlatma ihtiyacı
+
+4. **PanacheRepository**
+   - JPA'nın üzerine inşa edilmiş, daha basit ve güçlü bir repository pattern
+   - Aktif kayıt pattern'i ile daha az boilerplate kod
+   - Otomatik CRUD operasyonları
+   - Örnek kullanım:
+     ```java
+     @ApplicationScoped
+     public class TodoRepository implements PanacheRepository<Todo> {
+         // Temel CRUD operasyonları otomatik olarak gelir
+         // Özel sorgular için:
+         public List<Todo> findUncompleted() {
+             return find("completed", false).list();
+         }
+     }
+     ```
+
+### Spring Boot'un Avantajları
+
+1. **Olgunluk ve Ekosistem**
+   - Daha geniş topluluk desteği
+   - Daha fazla hazır çözüm ve kütüphane
+   - Daha fazla dokümantasyon ve kaynak
+
+2. **Esneklik**
+   - Daha fazla konfigürasyon seçeneği
+   - Daha fazla entegrasyon imkanı
+   - Daha fazla özelleştirme
+
+3. **Öğrenme Eğrisi**
+   - Daha fazla kaynak ve örnek
+   - Daha fazla geliştirici deneyimi
+   - Daha kolay iş bulma imkanı
+
+### Ne Zaman Quarkus Kullanmalı?
+
+1. **Mikroservis Mimarisi**
+   - Container tabanlı deployment
+   - Düşük kaynak kullanımı gerektiren senaryolar
+   - Hızlı başlangıç süresi önemli olduğunda
+
+2. **Serverless Uygulamalar**
+   - AWS Lambda, Azure Functions gibi serverless platformlar
+   - Soğuk başlangıç süresi önemli olduğunda
+   - Düşük bellek kullanımı gerektiğinde
+
+3. **Yüksek Performans Gerektiren Uygulamalar**
+   - Düşük latency gerektiren senaryolar
+   - Yüksek throughput gerektiren uygulamalar
+   - Native-image kullanımı uygun olduğunda
+
+### Ne Zaman Spring Boot Kullanmalı?
+
+1. **Monolitik Uygulamalar**
+   - Geleneksel enterprise uygulamalar
+   - Karmaşık iş mantığı gerektiren projeler
+   - Geniş ekosistem ihtiyacı olduğunda
+
+2. **Hızlı Geliştirme**
+   - Kısa sürede prototip geliştirme
+   - Geniş topluluk desteği gerektiğinde
+   - Çok sayıda hazır çözüm ihtiyacı olduğunda
+
+3. **Kurumsal Entegrasyonlar**
+   - Eski sistemlerle entegrasyon
+   - Karmaşık enterprise gereksinimleri
+   - Geniş konfigürasyon ihtiyacı
+
+## Özellikler
+
+- RESTful API endpoints
+- PostgreSQL veritabanı entegrasyonu
+- Docker container desteği
+- Swagger/OpenAPI dokümantasyonu
+- Validation ve error handling
+- Loglama
+
+## Gereksinimler
+
+- Docker
+- Docker Compose
+- Java 17 (geliştirme için)
+
+## Hızlı Başlangıç
+
+### 1. Projeyi Klonlayın
 
 ```bash
-git clone https://github.com/pehlivanmert/quarkus-todo-service.git
+git clone https://github.com/PehlivanMert/quarkus-todo-service.git
 cd quarkus-todo-service
 ```
 
-### 2. Veritabanı Kurulumu
-
-Docker Compose ile PostgreSQL ve pgAdmin'i başlatın:
+### 2. Uygulamayı Başlatın
 
 ```bash
-docker-compose up -d
+# Tüm container'ları başlatın (ilk kez build eder)
+docker compose up --build -d
+
+# Logları kontrol edin
+docker compose logs -f todo-app
 ```
 
-Bu komut:
-- PostgreSQL 16 veritabanını başlatır (port: 5432)
-- pgAdmin 4'ü başlatır (port: 5050)
-- Veritabanı verilerini kalıcı hale getirir
-
-### 3. Veritabanı Bağlantı Bilgileri
-
-- **Host**: localhost
-- **Port**: 5432
-- **Database**: tododb
-- **Username**: postgres
-- **Password**: postgres
-
-### 4. pgAdmin Erişimi
-
-- **URL**: http://localhost:5050
-- **Email**: admin@admin.com
-- **Password**: admin
-
-### 5. Uygulamayı Çalıştırma
-
-Geliştirme modunda çalıştırmak için:
+### 3. Uygulamayı Durdurun
 
 ```bash
+# Tüm container'ları durdurun ve volume'ları temizleyin
+docker compose down -v
+```
+
+## API Endpoints
+
+Uygulama başladıktan sonra aşağıdaki endpoint'ler kullanılabilir:
+
+- `GET /api/todos` - Tüm todo'ları listeler
+- `GET /api/todos/{id}` - Belirli bir todo'yu getirir
+- `POST /api/todos` - Yeni todo oluşturur
+- `PUT /api/todos/{id}` - Todo'yu günceller
+- `PATCH /api/todos/{id}` - Todo'nun tamamlanma durumunu günceller
+- `DELETE /api/todos/{id}` - Todo'yu siler
+
+## Veritabanı Yönetimi
+
+PgAdmin 4 arayüzüne http://localhost:5050 adresinden erişebilirsiniz:
+
+- Email: admin@admin.com
+- Şifre: admin
+
+Veritabanı bağlantı bilgileri:
+- Host: todo-postgres
+- Port: 5432
+- Database: tododb
+- Username: postgres
+- Password: postgres
+
+## Swagger/OpenAPI Dokümantasyonu
+
+API dokümantasyonuna http://localhost:8080/q/swagger-ui adresinden erişebilirsiniz.
+
+## Geliştirme
+
+### Yerel Geliştirme Ortamı
+
+```bash
+# Maven ile build
+./mvnw clean package
+
+# Quarkus dev modunda çalıştırma
 ./mvnw quarkus:dev
 ```
 
-Uygulama http://localhost:8080 adresinde çalışmaya başlayacaktır.
-
-## 📚 API Dokümantasyonu
-
-Swagger UI üzerinden API dokümantasyonuna erişebilirsiniz:
-- http://localhost:8080/q/swagger-ui
-
-## 🧪 Testler
-
-Testleri çalıştırmak için:
+### Docker ile Geliştirme
 
 ```bash
-./mvnw test
+# Container'ları yeniden build et ve başlat
+docker compose up --build -d
+
+# Logları izle
+docker compose logs -f todo-app
+
+# Container'ları durdur
+docker compose down
 ```
 
-## 🐳 Docker ile Çalıştırma
+## Proje Yapısı
 
-Uygulamayı Docker ile çalıştırmak için:
-
-```bash
-# JVM modunda build
-./mvnw package -Dquarkus.container-image.build=true
-
-# Native modunda build (isteğe bağlı)
-./mvnw package -Pnative -Dquarkus.native.container-build=true
+```
+src/main/java/com/example/todo/
+├── dto/           # Data Transfer Objects
+├── model/         # JPA Entities
+├── repository/    # Database Repositories
+├── resource/      # REST Endpoints
+└── service/       # Business Logic
 ```
 
-## 📦 Kubernetes Dağıtımı
+## Lisans
 
-Kubernetes manifestlerini oluşturmak için:
-
-```bash
-./mvnw package -Dquarkus.kubernetes.deploy=true
-```
-
-## 🔍 Sağlık Kontrolleri
-
-Sağlık kontrol endpoint'leri:
-- http://localhost:8080/q/health
-- http://localhost:8080/q/health/live
-- http://localhost:8080/q/health/ready
-
-## 📝 API Endpoint'leri
-
-### Todo İşlemleri
-
-- `POST /todos` - Yeni todo oluştur
-- `GET /todos` - Tüm todoları listele
-- `GET /todos/{id}` - ID'ye göre todo getir
-- `PUT /todos/{id}` - Todo güncelle
-- `DELETE /todos/{id}` - Todo sil
-
-## 🔐 Güvenlik
-
-- Geliştirme ortamında temel güvenlik önlemleri
-- Üretim ortamı için JWT tabanlı kimlik doğrulama eklenebilir
-
-## 📈 Performans
-
-- Quarkus'un hızlı başlatma süresi
-- Düşük bellek kullanımı
-- Native image desteği
-- Reactive programlama desteği
-
-## 🤝 Katkıda Bulunma
-
-1. Fork'layın
-2. Feature branch oluşturun (`git checkout -b feature/amazing-feature`)
-3. Değişikliklerinizi commit edin (`git commit -m 'feat: Add amazing feature'`)
-4. Branch'inizi push edin (`git push origin feature/amazing-feature`)
-5. Pull Request oluşturun
-
-## 📄 Lisans
-
-Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakın.
-
-## 👥 İletişim
-
-Proje Sahibi - [@PehlivanMert](https://github.com/PehlivanMert)
-
-Proje Linki: [https://github.com/PehlivanMert/quarkus-todo-service.git](https://github.com/PehlivanMert/quarkus-todo-service.git) 
+Bu proje MIT lisansı altında lisanslanmıştır. 
